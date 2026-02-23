@@ -29,7 +29,8 @@ static void raw_on(void) {
 }
 
 static void move(int row, int col) {
-    printf(ANSI_CUP_FMT, row, col);
+    /* ANSI CUP is 1-based; we use 0-based row/col internally */
+    printf(ANSI_CUP_FMT, row + 1, col + 1);
 }
 
 void initscr(void) {
@@ -38,6 +39,7 @@ void initscr(void) {
 }
 
 void endwin(void) {
+    printf(ANSI_RESET);
     printf(ANSI_ALT_BUF_OFF);
     raw_off();
 }

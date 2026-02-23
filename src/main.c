@@ -1,18 +1,18 @@
 #include "mcurses.h"
 #include "keyboard.h"
-#include <string.h>
+#include "data.h"
+#include "panel_info.h"
 
 int main(void) {
-    const char *text = "Hello, Moose!";
-    const char *prompt = "[ Press ESC ]";
+    struct file_info info;
 
     initscr();
     cbreak();
     noecho();
 
     clear();
-    mvprintw(LINES / 2, (COLS - (int)strlen(text)) / 2, "%s", text);
-    mvprintw(LINES / 2 + 2, (COLS - (int)strlen(prompt)) / 2, "%s", prompt);
+    data_fill_file_info("build/mc", &info);
+    panel_info_draw(&info);
     refresh();
 
     while (getch() != KEY_ESC)
