@@ -13,6 +13,7 @@ struct file_info {
     char mode_oct[8];
     char links[FILE_INFO_LINE_LEN];
     char owner[FILE_INFO_LINE_LEN];
+    char group[FILE_INFO_LINE_LEN];
     char size[FILE_INFO_LINE_LEN];
 
     char changed[32];
@@ -23,7 +24,9 @@ struct file_info {
     char filesystem[FILE_INFO_LINE_LEN];
     char device[FILE_INFO_LINE_LEN];
     char fstype[32];
+    char total_space[FILE_INFO_LINE_LEN];
     char free_space[FILE_INFO_LINE_LEN];
+    char total_nodes[FILE_INFO_LINE_LEN];
     char free_nodes[FILE_INFO_LINE_LEN];
 };
 

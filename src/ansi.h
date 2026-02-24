@@ -19,15 +19,27 @@
 #define ANSI_ALT_BUF_ON   "\033[?1049h"
 #define ANSI_ALT_BUF_OFF  "\033[?1049l"
 
-/* Box-drawing (UTF-8) */
-#define BOX_TL  "\xe2\x94\x8c"  /* ┌ */
-#define BOX_TR  "\xe2\x94\x90"  /* ┐ */
-#define BOX_BL  "\xe2\x94\x94"  /* └ */
-#define BOX_BR  "\xe2\x94\x98"  /* ┘ */
-#define BOX_V   "\xe2\x94\x82"  /* │ */
-#define BOX_H   "\xe2\x94\x80"  /* ─ */
-#define BOX_TL_SEP "\xe2\x94\x9c"  /* ├ */
-#define BOX_TR_SEP "\xe2\x94\xa4"  /* ┤ */
+/* Box-drawing light (single line), names from Unicode / ASCII-table style */
+#define BOX_LIGHT_DOWN_AND_RIGHT   "\xe2\x94\x8c"  /* ┌ */
+#define BOX_LIGHT_DOWN_AND_LEFT    "\xe2\x94\x90"  /* ┐ */
+#define BOX_LIGHT_UP_AND_RIGHT     "\xe2\x94\x94"  /* └ */
+#define BOX_LIGHT_UP_AND_LEFT      "\xe2\x94\x98"  /* ┘ */
+#define BOX_LIGHT_VERTICAL         "\xe2\x94\x82"  /* │ */
+#define BOX_LIGHT_HORIZONTAL       "\xe2\x94\x80"  /* ─ */
+#define BOX_LIGHT_VERTICAL_AND_RIGHT "\xe2\x94\x9c"  /* ├ */
+#define BOX_LIGHT_VERTICAL_AND_LEFT  "\xe2\x94\xa4"  /* ┤ */
+
+/* Box-drawing double line */
+#define BOX_DOUBLE_DOWN_AND_RIGHT  "\xe2\x95\x94"  /* ╔ */
+#define BOX_DOUBLE_DOWN_AND_LEFT   "\xe2\x95\x97"  /* ╗ */
+#define BOX_DOUBLE_UP_AND_RIGHT    "\xe2\x95\x9a"  /* ╚ */
+#define BOX_DOUBLE_UP_AND_LEFT     "\xe2\x95\x9d"  /* ╝ */
+#define BOX_DOUBLE_VERTICAL        "\xe2\x95\x91"  /* ║ */
+#define BOX_DOUBLE_HORIZONTAL      "\xe2\x95\x90"  /* ═ */
+
+/* Separator crossing: vertical single and right/left double (╟ ╢) */
+#define BOX_VERTICAL_SINGLE_AND_RIGHT_DOUBLE "\xe2\x95\x9f"  /* ╟ */
+#define BOX_VERTICAL_SINGLE_AND_LEFT_DOUBLE  "\xe2\x95\xa2"  /* ╢ */
 
 /* Color palette (ANSI) */
 #define MC_COLOR_BG         "\033[44m"   /* Background Blue #0000AA */

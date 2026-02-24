@@ -44,12 +44,6 @@ void endwin(void) {
     raw_off();
 }
 
-void cbreak(void) {
-}
-
-void noecho(void) {
-}
-
 void clear(void) {
     printf(ANSI_CLS);
 }

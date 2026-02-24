@@ -102,18 +102,20 @@ void data_fill_file_info(const char *path, struct file_info *out) {
     snprintf(out->links, sizeof(out->links), "%lu", (unsigned long)st.st_nlink);
 
 #if defined(__ELKS__)
-    snprintf(out->owner, sizeof(out->owner), "%lu/%lu", (unsigned long)st.st_uid, (unsigned long)st.st_gid);
+    snprintf(out->owner, sizeof(out->owner), "%lu", (unsigned long)st.st_uid);
+    snprintf(out->group, sizeof(out->group), "%lu", (unsigned long)st.st_gid);
 #else
     {
         const char *user = "?";
-        const char *group = "?";
+        const char *grp = "?";
         struct passwd *pw = getpwuid(st.st_uid);
         struct group *gr = getgrgid(st.st_gid);
         if (pw) user = pw->pw_name;
         else { static char u[16]; snprintf(u, sizeof u, "%lu", (unsigned long)st.st_uid); user = u; }
-        if (gr) group = gr->gr_name;
-        else { static char g[16]; snprintf(g, sizeof g, "%lu", (unsigned long)st.st_gid); group = g; }
-        snprintf(out->owner, sizeof(out->owner), "%s/%s", user, group);
+        if (gr) grp = gr->gr_name;
+        else { static char g[16]; snprintf(g, sizeof g, "%lu", (unsigned long)st.st_gid); grp = g; }
+        snprintf(out->owner, sizeof(out->owner), "%s", user);
+        snprintf(out->group, sizeof(out->group), "%s", grp);
     }
 #endif
 
@@ -156,13 +158,15 @@ void data_fill_file_info(const char *path, struct file_info *out) {
                 char total_s[16], free_s[16];
                 human_size(total, total_s, sizeof total_s);
                 human_size(free_bytes, free_s, sizeof free_s);
-                snprintf(out->free_space, sizeof(out->free_space), "%s / %s (%lu%%)", free_s, total_s, pct);
+                snprintf(out->total_space, sizeof(out->total_space), "%s", total_s);
+                snprintf(out->free_space, sizeof(out->free_space), "%s (%lu%%)", free_s, pct);
             }
             {
                 unsigned long long total_nodes = (unsigned long long)vfs.f_files;
                 unsigned long long free_nodes = (unsigned long long)vfs.f_ffree;
                 unsigned long pct = total_nodes ? (unsigned long)(100ULL * free_nodes / total_nodes) : 0;
-                snprintf(out->free_nodes, sizeof(out->free_nodes), "%llu / %llu (%lu%%)", free_nodes, total_nodes, pct);
+                snprintf(out->total_nodes, sizeof(out->total_nodes), "%llu", total_nodes);
+                snprintf(out->free_nodes, sizeof(out->free_nodes), "%llu (%lu%%)", free_nodes, pct);
             }
         }
     }

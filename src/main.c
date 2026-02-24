@@ -7,12 +7,11 @@ int main(void) {
     struct file_info info;
 
     initscr();
-    cbreak();
-    noecho();
 
     clear();
     data_fill_file_info("build/mc", &info);
-    panel_info_draw(&info);
+    panel_info_draw(&info, PANEL_LEFT);
+    panel_info_draw(&info, PANEL_RIGHT);
     refresh();
 
     while (getch() != KEY_ESC)

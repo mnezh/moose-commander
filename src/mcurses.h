@@ -12,8 +12,6 @@
 /* Lifecycle */
 void initscr(void);
 void endwin(void);
-void cbreak(void);
-void noecho(void);
 
 /* Output */
 void clear(void);
