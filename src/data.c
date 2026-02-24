@@ -52,12 +52,19 @@ static void mode_str(mode_t m, char *buf, size_t size) {
     *p = '\0';
 }
 
+/* Use our own date formatter everywhere instead of strftime, so we build on
+ * minimal libcs (e.g. ELKS) that don't provide strftime. Output matches "%b %e %H:%M". */
 static void format_date(char *buf, size_t size, time_t t) {
     struct tm *tm = localtime(&t);
-    if (tm)
-        strftime(buf, size, "%b %e %H:%M", tm);
-    else
+    if (!tm) {
         snprintf(buf, size, "?");
+        return;
+    }
+    static const char *const mon[] = { "Jan","Feb","Mar","Apr","May","Jun",
+                                       "Jul","Aug","Sep","Oct","Nov","Dec" };
+    int m = (unsigned)tm->tm_mon < 12u ? (int)tm->tm_mon : 0;
+    snprintf(buf, size, "%s %2d %02d:%02d",
+             mon[m], tm->tm_mday, tm->tm_hour, tm->tm_min);
 }
 
 #if !defined(__ELKS__)

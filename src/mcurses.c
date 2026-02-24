@@ -48,13 +48,18 @@ void clear(void) {
     printf(ANSI_CLS);
 }
 
+/* Use vsprintf (not vprintf): vsprintf is the standard "v" function usually
+ * present in ELKS/bcc libc. */
 int mvprintw(int row, int col, const char *fmt, ...) {
+    char buf[512];
     va_list ap;
-    move(row, col);
     va_start(ap, fmt);
-    int n = vprintf(fmt, ap);
+    move(row, col);
+    int n = vsprintf(buf, fmt, ap);
     va_end(ap);
-    return n;
+    if (n >= 0)
+        printf("%s", buf);
+    return n >= 0 ? n : 0;
 }
 
 void refresh(void) {

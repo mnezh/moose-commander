@@ -19,27 +19,50 @@
 #define ANSI_ALT_BUF_ON   "\033[?1049h"
 #define ANSI_ALT_BUF_OFF  "\033[?1049l"
 
-/* Box-drawing light (single line), names from Unicode / ASCII-table style */
-#define BOX_LIGHT_DOWN_AND_RIGHT   "\xe2\x94\x8c"  /* ┌ */
-#define BOX_LIGHT_DOWN_AND_LEFT    "\xe2\x94\x90"  /* ┐ */
-#define BOX_LIGHT_UP_AND_RIGHT     "\xe2\x94\x94"  /* └ */
-#define BOX_LIGHT_UP_AND_LEFT      "\xe2\x94\x98"  /* ┘ */
-#define BOX_LIGHT_VERTICAL         "\xe2\x94\x82"  /* │ */
-#define BOX_LIGHT_HORIZONTAL       "\xe2\x94\x80"  /* ─ */
-#define BOX_LIGHT_VERTICAL_AND_RIGHT "\xe2\x94\x9c"  /* ├ */
-#define BOX_LIGHT_VERTICAL_AND_LEFT  "\xe2\x94\xa4"  /* ┤ */
+/*
+ * Box-drawing: two variants.
+ * - Unicode (UTF-8): macOS and modern terminals.
+ * - CP437 (single-byte): ELKS and other IBM 437 / 16-color non-Unicode terminals.
+ */
+#if defined(__ELKS__)
+#define BOX_LIGHT_DOWN_AND_RIGHT   "\xDA"
+#define BOX_LIGHT_DOWN_AND_LEFT    "\xBF"
+#define BOX_LIGHT_UP_AND_RIGHT     "\xC0"
+#define BOX_LIGHT_UP_AND_LEFT      "\xD9"
+#define BOX_LIGHT_VERTICAL         "\xB3"
+#define BOX_LIGHT_HORIZONTAL       "\xC4"
+#define BOX_LIGHT_VERTICAL_AND_RIGHT "\xC3"
+#define BOX_LIGHT_VERTICAL_AND_LEFT  "\xB4"
 
-/* Box-drawing double line */
-#define BOX_DOUBLE_DOWN_AND_RIGHT  "\xe2\x95\x94"  /* ╔ */
-#define BOX_DOUBLE_DOWN_AND_LEFT   "\xe2\x95\x97"  /* ╗ */
-#define BOX_DOUBLE_UP_AND_RIGHT    "\xe2\x95\x9a"  /* ╚ */
-#define BOX_DOUBLE_UP_AND_LEFT     "\xe2\x95\x9d"  /* ╝ */
-#define BOX_DOUBLE_VERTICAL        "\xe2\x95\x91"  /* ║ */
-#define BOX_DOUBLE_HORIZONTAL      "\xe2\x95\x90"  /* ═ */
+#define BOX_DOUBLE_DOWN_AND_RIGHT  "\xC9"
+#define BOX_DOUBLE_DOWN_AND_LEFT   "\xBB"
+#define BOX_DOUBLE_UP_AND_RIGHT    "\xC8"
+#define BOX_DOUBLE_UP_AND_LEFT     "\xBC"
+#define BOX_DOUBLE_VERTICAL        "\xBA"
+#define BOX_DOUBLE_HORIZONTAL      "\xCD"
 
-/* Separator crossing: vertical single and right/left double (╟ ╢) */
-#define BOX_VERTICAL_SINGLE_AND_RIGHT_DOUBLE "\xe2\x95\x9f"  /* ╟ */
-#define BOX_VERTICAL_SINGLE_AND_LEFT_DOUBLE  "\xe2\x95\xa2"  /* ╢ */
+#define BOX_VERTICAL_SINGLE_AND_RIGHT_DOUBLE "\xC7"
+#define BOX_VERTICAL_SINGLE_AND_LEFT_DOUBLE  "\xB6"
+#else
+#define BOX_LIGHT_DOWN_AND_RIGHT   "\xe2\x94\x8c"
+#define BOX_LIGHT_DOWN_AND_LEFT    "\xe2\x94\x90"
+#define BOX_LIGHT_UP_AND_RIGHT     "\xe2\x94\x94"
+#define BOX_LIGHT_UP_AND_LEFT      "\xe2\x94\x98"
+#define BOX_LIGHT_VERTICAL         "\xe2\x94\x82"
+#define BOX_LIGHT_HORIZONTAL       "\xe2\x94\x80"
+#define BOX_LIGHT_VERTICAL_AND_RIGHT "\xe2\x94\x9c"
+#define BOX_LIGHT_VERTICAL_AND_LEFT  "\xe2\x94\xa4"
+
+#define BOX_DOUBLE_DOWN_AND_RIGHT  "\xe2\x95\x94"
+#define BOX_DOUBLE_DOWN_AND_LEFT   "\xe2\x95\x97"
+#define BOX_DOUBLE_UP_AND_RIGHT    "\xe2\x95\x9a"
+#define BOX_DOUBLE_UP_AND_LEFT     "\xe2\x95\x9d"
+#define BOX_DOUBLE_VERTICAL        "\xe2\x95\x91"
+#define BOX_DOUBLE_HORIZONTAL      "\xe2\x95\x90"
+
+#define BOX_VERTICAL_SINGLE_AND_RIGHT_DOUBLE "\xe2\x95\x9f"
+#define BOX_VERTICAL_SINGLE_AND_LEFT_DOUBLE  "\xe2\x95\xa2"
+#endif
 
 /* Color palette (ANSI) */
 #define MC_COLOR_BG         "\033[44m"   /* Background Blue #0000AA */
