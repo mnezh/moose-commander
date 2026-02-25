@@ -17,7 +17,7 @@ BOOT_IMG = $(BUILD_DIR)/work-elks-fat.img
 86BOX = /Applications/86Box.app/Contents/MacOS/86Box
 VM_PATH = $(shell realpath ./86box)
 
-SRC_MC = src/main.c src/mcurses.c src/data.c src/panel_info.c src/util.c
+SRC_MC = src/main.c src/mcurses.c src/data_info.c src/panel_info.c src/util.c
 SRC_SD = src/sysdiag.c
 SRC_ELKS = src/elks.c
 SRC_UTIL = src/util.c

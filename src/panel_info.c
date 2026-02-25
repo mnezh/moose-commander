@@ -71,43 +71,43 @@ void panel_info_draw(const struct file_info *info, int side) {
 
     /* 4. Data lines: first "File:" with one space indent; rest with two spaces */
     if (info->not_found) {
-        snprintf(buf, sizeof buf, " File: %s", info->file_name);
+        snprintf(buf, sizeof buf, " File: %s", info->file.file_name);
         draw_data_line(row++, buf, col_off);
         snprintf(buf, sizeof buf, "  (not found: %s)", info->error_msg);
         draw_data_line(row++, buf, col_off);
     } else {
-        snprintf(buf, sizeof buf, " File: %s", info->file_name);
+        snprintf(buf, sizeof buf, " File: %s", info->file.file_name);
         draw_data_line(row++, buf, col_off);
-        snprintf(buf, sizeof buf, "  %-*s %s (%s)", LABEL_WIDTH, "Mode:", info->mode, info->mode_oct);
+        snprintf(buf, sizeof buf, "  %-*s %s (%s)", LABEL_WIDTH, "Mode:", info->file.mode, info->file.mode_oct);
         draw_data_line(row++, buf, col_off);
-        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Links:", info->links);
+        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Links:", info->file.links);
         draw_data_line(row++, buf, col_off);
-        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Owner:", info->owner);
+        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Owner:", info->file.owner);
         draw_data_line(row++, buf, col_off);
-        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Group:", info->group);
+        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Group:", info->file.group);
         draw_data_line(row++, buf, col_off);
-        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Size:", info->size);
+        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Size:", info->file.size);
         draw_data_line(row++, buf, col_off);
-        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Changed:", info->changed);
+        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Changed:", info->file.changed);
         draw_data_line(row++, buf, col_off);
-        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Modified:", info->modified);
+        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Modified:", info->file.modified);
         draw_data_line(row++, buf, col_off);
-        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Accessed:", info->accessed);
+        snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Accessed:", info->file.accessed);
         draw_data_line(row++, buf, col_off);
-        if (info->has_fs) {
-            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Filesystem:", info->filesystem);
+        if (info->fs.has_fs) {
+            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Filesystem:", info->fs.filesystem);
             draw_data_line(row++, buf, col_off);
-            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Device:", info->device);
+            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Device:", info->fs.device);
             draw_data_line(row++, buf, col_off);
-            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Type:", info->fstype);
+            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Type:", info->fs.fstype);
             draw_data_line(row++, buf, col_off);
-            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Total space:", info->total_space);
+            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Total space:", info->fs.total_space);
             draw_data_line(row++, buf, col_off);
-            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Free space:", info->free_space);
+            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Free space:", info->fs.free_space);
             draw_data_line(row++, buf, col_off);
-            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Total nodes:", info->total_nodes);
+            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Total nodes:", info->fs.total_nodes);
             draw_data_line(row++, buf, col_off);
-            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Free nodes:", info->free_nodes);
+            snprintf(buf, sizeof buf, "  %-*s %s", LABEL_WIDTH, "Free nodes:", info->fs.free_nodes);
             draw_data_line(row++, buf, col_off);
         } else {
             snprintf(buf, sizeof buf, "  %-*s -", LABEL_WIDTH, "Filesystem:");

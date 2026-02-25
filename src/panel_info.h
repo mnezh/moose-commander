@@ -2,7 +2,7 @@
 #define MC_PANEL_INFO_H
 
 #include "mcurses.h"
-#include "data.h"
+#include "data_info.h"
 
 /* Panel width (half screen) */
 #define PANEL_WIDTH  (COLS / 2)

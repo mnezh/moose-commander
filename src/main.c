@@ -1,6 +1,6 @@
 #include "mcurses.h"
 #include "keyboard.h"
-#include "data.h"
+#include "data_info.h"
 #include "panel_info.h"
 
 int main(int argc, char **argv) {
@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
     initscr();
 
     clear();
-    data_fill_file_info(path, &info);
+    fetch_translated_file_info(path, &info);
     panel_info_draw(&info, PANEL_LEFT);
     panel_info_draw(&info, PANEL_RIGHT);
     refresh();
