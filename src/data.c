@@ -5,10 +5,10 @@
 #include <sys/stat.h>
 #include <errno.h>
 
-#if !defined(__ELKS__)
-#include <sys/statvfs.h>
 #include <pwd.h>
 #include <grp.h>
+#if !defined(__ELKS__)
+#include <sys/statvfs.h>
 #endif
 #if defined(__APPLE__) || defined(__MACH__)
 #include <sys/mount.h>
@@ -108,10 +108,6 @@ void data_fill_file_info(const char *path, struct file_info *out) {
     snprintf(out->mode_oct, sizeof(out->mode_oct), "%04o", (unsigned)(st.st_mode & 07777));
     snprintf(out->links, sizeof(out->links), "%lu", (unsigned long)st.st_nlink);
 
-#if defined(__ELKS__)
-    snprintf(out->owner, sizeof(out->owner), "%lu", (unsigned long)st.st_uid);
-    snprintf(out->group, sizeof(out->group), "%lu", (unsigned long)st.st_gid);
-#else
     {
         const char *user = "?";
         const char *grp = "?";
@@ -124,7 +120,6 @@ void data_fill_file_info(const char *path, struct file_info *out) {
         snprintf(out->owner, sizeof(out->owner), "%s", user);
         snprintf(out->group, sizeof(out->group), "%s", grp);
     }
-#endif
 
 #if defined(__ELKS__)
     snprintf(out->size, sizeof(out->size), "%lu", (unsigned long)st.st_size);
@@ -142,7 +137,6 @@ void data_fill_file_info(const char *path, struct file_info *out) {
     format_date(out->accessed, sizeof(out->accessed), st.st_atime);
 
 #if !defined(__ELKS__)
-    /* Filesystem info (statvfs not in ELKS libc) */
     {
         struct statvfs vfs;
         if (statvfs(path, &vfs) == 0) {

@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <sys/types.h>
 #if !defined(__ELKS__)
 #include <sys/ioctl.h>
 #endif
+#include <pwd.h>
+#include <grp.h>
 #include "ansi.h"
 
 #define COLS   16
@@ -19,31 +22,49 @@ static void pad_to(int n) {
 }
 
 #if defined(__ELKS__)
-static int get_dims_ansi(int *rows, int *cols) {
-    unsigned char buf[32];
+static int request_cursor_report(unsigned char *buf, int size, const char *prefix) {
     int i = 0;
-    int r = 0, c = 0;
-
-    printf("\033[999;999H\033[6n");
+    if (prefix) printf("%s", prefix);
+    printf("\033[6n");
     fflush(stdout);
-
-    while (i < (int)sizeof(buf)) {
+    while (i < size) {
         if (read(STDIN_FILENO, buf + i, 1) != 1) return -1;
         if (buf[i] == 'R') break;
         i++;
     }
-    if (i >= (int)sizeof(buf) || buf[i] != 'R') return -1;
+    if (i >= size || buf[i] != 'R') return -1;
     buf[i] = '\0';
+    return 0;
+}
 
-    i = 0;
-    while (i < (int)sizeof(buf) && buf[i] != '[') i++;
-    if (i >= (int)sizeof(buf) || buf[i] != '[') return -1;
+static int parse_cursor_report(const unsigned char *buf, int *row, int *col) {
+    int i = 0;
+    int r = 0, c = 0;
+    while (buf[i] && buf[i] != '[') i++;
+    if (!buf[i] || buf[i] != '[') return -1;
     i++;
     for (r = 0; buf[i] >= '0' && buf[i] <= '9'; i++) r = r * 10 + (buf[i] - '0');
     if (buf[i] != ';') return -1;
     i++;
     for (c = 0; buf[i] >= '0' && buf[i] <= '9'; i++) c = c * 10 + (buf[i] - '0');
+    *row = r;
+    *col = c;
+    return 0;
+}
+
+static int get_dims_ansi(int *rows, int *cols) {
+    unsigned char buf[32];
+    int saved_row, saved_col;
+    int r, c;
+
+    if (request_cursor_report(buf, (int)sizeof(buf), NULL) != 0) return -1;
+    if (parse_cursor_report(buf, &saved_row, &saved_col) != 0) return -1;
+
+    if (request_cursor_report(buf, (int)sizeof(buf), "\033[999;999H") != 0) return -1;
+    if (parse_cursor_report(buf, &r, &c) != 0) return -1;
     if (r <= 0 || c <= 0) return -1;
+
+    printf("\033[%d;%dH", saved_row, saved_col);
 
     *rows = r;
     *cols = c;
@@ -72,6 +93,16 @@ static void put_ascii_cell(int code) {
 
 static void print_color_cell(int sgr, int i) {
     printf("\033[%dm %2d \033[0m", sgr, i);
+}
+
+static void print_user_group(void) {
+    uid_t uid = 0;
+    gid_t gid = 0;
+    struct passwd *pw = getpwuid(uid);
+    struct group *gr = getgrgid(gid);
+
+    printf("getpwuid(0): %s\n", pw ? pw->pw_name : "(NULL, not supported)");
+    printf("getgrgid(0): %s\n", gr ? gr->gr_name : "(NULL, not supported)");
 }
 
 int main(void) {
@@ -118,5 +149,9 @@ int main(void) {
         line++;
     }
     printf(ANSI_RESET);
+
+    printf("\nChecking libc for user/group functions:\n");
+    print_user_group();
+
     return 0;
 }

@@ -3,8 +3,8 @@ CFLAGS = -Wall -Wextra
 BUILD_DIR = build
 MC_BINARY = $(BUILD_DIR)/mc
 MC_ELKS = $(BUILD_DIR)/mc.elks
-TD_BINARY = $(BUILD_DIR)/termdiag
-TD_ELKS = $(BUILD_DIR)/termdiag.elks
+SD_BINARY = $(BUILD_DIR)/sysdiag
+SD_ELKS = $(BUILD_DIR)/sysdiag.elks
 
 DOCKER_IMAGE = elks-builder
 ELKS_CC = ia16-elf-gcc
@@ -18,12 +18,12 @@ BOOT_IMG = $(BUILD_DIR)/work-elks-fat.img
 VM_PATH = $(shell realpath ./86box)
 
 SRC_MC = src/main.c src/mcurses.c src/data.c src/panel_info.c
-SRC_TD = src/termdiag.c
+SRC_SD = src/sysdiag.c
 SRC_H = $(wildcard src/*.h)
 
-.PHONY: all clean elks run docker-image mc termdiag
+.PHONY: all clean elks run docker-image mc sysdiag
 
-all: $(MC_BINARY) $(TD_BINARY)
+all: $(MC_BINARY) $(SD_BINARY)
 
 $(BUILD_DIR):
 	mkdir -p $@
@@ -31,8 +31,8 @@ $(BUILD_DIR):
 $(MC_BINARY): $(SRC_MC) $(SRC_H) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -I src -o $@ $(SRC_MC)
 
-$(TD_BINARY): $(SRC_TD) $(SRC_H) | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -I src -o $@ $(SRC_TD)
+$(SD_BINARY): $(SRC_SD) $(SRC_H) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -I src -o $@ $(SRC_SD)
 
 docker-image:
 	docker build --platform linux/amd64 -t $(DOCKER_IMAGE) -f Dockerfile.elks .
@@ -42,22 +42,22 @@ $(MC_ELKS): docker-image $(SRC_MC) $(SRC_H) | $(BUILD_DIR)
 		$(ELKS_CC) $(ELKS_CFLAGS) -I src -o $@ $(SRC_MC)
 	@echo "Successfully built: $@"
 
-$(TD_ELKS): docker-image $(SRC_TD) $(SRC_H) | $(BUILD_DIR)
+$(SD_ELKS): docker-image $(SRC_SD) $(SRC_H) | $(BUILD_DIR)
 	docker run --rm --platform linux/amd64 -v $(shell pwd):/project $(DOCKER_IMAGE) \
-		$(ELKS_CC) $(ELKS_CFLAGS) -I src -o $@ $(SRC_TD)
+		$(ELKS_CC) $(ELKS_CFLAGS) -I src -o $@ $(SRC_SD)
 	@echo "Successfully built: $@"
 
 mc: $(MC_BINARY)
-termdiag: $(TD_BINARY)
-elks: $(MC_ELKS) $(TD_ELKS)
+sysdiag: $(SD_BINARY)
+elks: $(MC_ELKS) $(SD_ELKS)
 
 $(BASE_ELKS): | $(BUILD_DIR)
 	@[ -f $(BASE_ELKS) ] || curl -L $(IMG_URL) -o $(BASE_ELKS)
 
-$(BOOT_IMG): $(MC_ELKS) $(TD_ELKS) $(BASE_ELKS)
+$(BOOT_IMG): $(MC_ELKS) $(SD_ELKS) $(BASE_ELKS)
 	cp $(BASE_ELKS) $(BOOT_IMG)
 	mcopy -o -i $(BOOT_IMG) $(MC_ELKS) ::/bin/mc
-	mcopy -o -i $(BOOT_IMG) $(TD_ELKS) ::/bin/termdiag
+	mcopy -o -i $(BOOT_IMG) $(SD_ELKS) ::/bin/sysdiag
 
 run: $(BOOT_IMG) 86box/86box.cfg
 	$(86BOX) --vmpath $(VM_PATH) -I A:$(shell realpath $(BOOT_IMG))
