@@ -17,8 +17,10 @@ BOOT_IMG = $(BUILD_DIR)/work-elks-fat.img
 86BOX = /Applications/86Box.app/Contents/MacOS/86Box
 VM_PATH = $(shell realpath ./86box)
 
-SRC_MC = src/main.c src/mcurses.c src/data.c src/panel_info.c
+SRC_MC = src/main.c src/mcurses.c src/data.c src/panel_info.c src/util.c
 SRC_SD = src/sysdiag.c
+SRC_ELKS = src/elks.c
+SRC_UTIL = src/util.c
 SRC_H = $(wildcard src/*.h)
 
 .PHONY: all clean elks run docker-image mc sysdiag
@@ -37,14 +39,14 @@ $(SD_BINARY): $(SRC_SD) $(SRC_H) | $(BUILD_DIR)
 docker-image:
 	docker build --platform linux/amd64 -t $(DOCKER_IMAGE) -f Dockerfile.elks .
 
-$(MC_ELKS): docker-image $(SRC_MC) $(SRC_H) | $(BUILD_DIR)
+$(MC_ELKS): docker-image $(SRC_MC) $(SRC_ELKS) $(SRC_H) | $(BUILD_DIR)
 	docker run --rm --platform linux/amd64 -v $(shell pwd):/project $(DOCKER_IMAGE) \
-		$(ELKS_CC) $(ELKS_CFLAGS) -I src -o $@ $(SRC_MC)
+		$(ELKS_CC) $(ELKS_CFLAGS) -I src -o $@ $(SRC_MC) $(SRC_ELKS)
 	@echo "Successfully built: $@"
 
-$(SD_ELKS): docker-image $(SRC_SD) $(SRC_H) | $(BUILD_DIR)
+$(SD_ELKS): docker-image $(SRC_SD) $(SRC_ELKS) $(SRC_UTIL) $(SRC_H) | $(BUILD_DIR)
 	docker run --rm --platform linux/amd64 -v $(shell pwd):/project $(DOCKER_IMAGE) \
-		$(ELKS_CC) $(ELKS_CFLAGS) -I src -o $@ $(SRC_SD)
+		$(ELKS_CC) $(ELKS_CFLAGS) -I src -o $@ $(SRC_SD) $(SRC_ELKS) $(SRC_UTIL)
 	@echo "Successfully built: $@"
 
 mc: $(MC_BINARY)

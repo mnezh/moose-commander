@@ -4,6 +4,11 @@
 #if !defined(__ELKS__)
 #include <sys/ioctl.h>
 #endif
+#if defined(__ELKS__)
+#include "elks.h"
+#include <sys/stat.h>
+#include <sys/mount.h>
+#endif
 #include <pwd.h>
 #include <grp.h>
 #include "ansi.h"
@@ -105,7 +110,43 @@ static void print_user_group(void) {
     printf("getgrgid(0): %s\n", gr ? gr->gr_name : "(NULL, not supported)");
 }
 
-int main(void) {
+#if defined(__ELKS__)
+static void report_space(const char *path) {
+    struct stat st;
+    struct statfs sf;
+    unsigned long total_kb, free_kb, used_kb;
+    int percentage = 0;
+
+    if (stat(path, &st) < 0) {
+        perror("Error accessing path");
+        return;
+    }
+    if (ustatfs(st.st_dev, &sf, 0) < 0) {
+        perror("Error getting filesystem stats");
+        return;
+    }
+
+    total_kb = (unsigned long)(sf.f_blocks * sf.f_bsize) / 1024;
+    free_kb  = (unsigned long)(sf.f_bfree * sf.f_bsize) / 1024;
+    used_kb  = total_kb - free_kb;
+    if (total_kb > 0)
+        percentage = (int)((used_kb * 100) / total_kb);
+
+    printf("\nFile Path:   %s\n", path);
+    printf("FS Type:     %s (raw 0x%lx)\n", elks_get_fs_type(sf.f_type), (unsigned long)sf.f_type);
+    printf("Device:      Major %d, Minor %d\n",
+           (int)(st.st_dev >> 8) & 0xFF, (int)(st.st_dev & 0xFF));
+    printf("------------------------------\n");
+    printf("Total Space: %lu KB\n", total_kb);
+    printf("Used Space:  %lu KB (%d%%)\n", used_kb, percentage);
+    printf("Free Space:  %lu KB\n", free_kb);
+    printf("Inodes:      %ld total / %ld free\n", (long)sf.f_files, (long)sf.f_ffree);
+}
+#endif
+
+int main(int argc, char *argv[]) {
+    (void)argc;
+    (void)argv;
     int line = 0;
     int n;
     int rows = 0, cols = 0;
@@ -152,6 +193,10 @@ int main(void) {
 
     printf("\nChecking libc for user/group functions:\n");
     print_user_group();
+
+#if defined(__ELKS__)
+    report_space(argc > 1 ? argv[1] : "/");
+#endif
 
     return 0;
 }

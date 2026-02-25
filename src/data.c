@@ -1,4 +1,5 @@
 #include "data.h"
+#include "util.h"
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
@@ -7,6 +8,9 @@
 
 #include <pwd.h>
 #include <grp.h>
+#if defined(__ELKS__)
+#include "elks.h"
+#endif
 #if !defined(__ELKS__)
 #include <sys/statvfs.h>
 #endif
@@ -20,78 +24,6 @@
 #define major(dev)  (((unsigned)(dev) >> 8) & 0xFF)
 #define minor(dev)  ((unsigned)(dev) & 0xFF)
 #endif
-#ifndef S_ISLNK
-#define S_ISLNK(m)  0
-#endif
-#ifndef S_ISCHR
-#define S_ISCHR(m)  0
-#endif
-#ifndef S_ISBLK
-#define S_ISBLK(m)  0
-#endif
-#ifndef S_ISFIFO
-#define S_ISFIFO(m) 0
-#endif
-#ifndef S_ISSOCK
-#define S_ISSOCK(m) 0
-#endif
-
-static void mode_str(mode_t m, char *buf, size_t size) {
-    char *p = buf;
-    if (size < 11) return;
-    *p++ = S_ISREG(m) ? '-' : S_ISDIR(m) ? 'd' : S_ISLNK(m) ? 'l' : S_ISCHR(m) ? 'c' : S_ISBLK(m) ? 'b' : S_ISFIFO(m) ? 'p' : S_ISSOCK(m) ? 's' : '?';
-    *p++ = (m & S_IRUSR) ? 'r' : '-';
-    *p++ = (m & S_IWUSR) ? 'w' : '-';
-    *p++ = (m & S_IXUSR) ? 'x' : '-';
-    *p++ = (m & S_IRGRP) ? 'r' : '-';
-    *p++ = (m & S_IWGRP) ? 'w' : '-';
-    *p++ = (m & S_IXGRP) ? 'x' : '-';
-    *p++ = (m & S_IROTH) ? 'r' : '-';
-    *p++ = (m & S_IWOTH) ? 'w' : '-';
-    *p++ = (m & S_IXOTH) ? 'x' : '-';
-    *p = '\0';
-}
-
-/* Use our own date formatter everywhere instead of strftime, so we build on
- * minimal libcs (e.g. ELKS) that don't provide strftime. Output matches "%b %e %H:%M". */
-static void format_date(char *buf, size_t size, time_t t) {
-    struct tm *tm = localtime(&t);
-    if (!tm) {
-        snprintf(buf, size, "?");
-        return;
-    }
-    static const char *const mon[] = { "Jan","Feb","Mar","Apr","May","Jun",
-                                       "Jul","Aug","Sep","Oct","Nov","Dec" };
-    int m = (unsigned)tm->tm_mon < 12u ? (int)tm->tm_mon : 0;
-    snprintf(buf, size, "%s %2d %02d:%02d",
-             mon[m], tm->tm_mday, tm->tm_hour, tm->tm_min);
-}
-
-#if !defined(__ELKS__)
-static void human_size(unsigned long long bytes, char *buf, size_t size) {
-    if (bytes >= 1024ULL * 1024 * 1024 * 1024)
-        snprintf(buf, size, "%lluT", bytes / (1024ULL * 1024 * 1024 * 1024));
-    else if (bytes >= 1024ULL * 1024 * 1024)
-        snprintf(buf, size, "%lluG", bytes / (1024ULL * 1024 * 1024));
-    else if (bytes >= 1024ULL * 1024)
-        snprintf(buf, size, "%lluM", bytes / (1024ULL * 1024));
-    else if (bytes >= 1024)
-        snprintf(buf, size, "%lluK", bytes / 1024);
-    else
-        snprintf(buf, size, "%llu", bytes);
-}
-#endif
-
-static const char *basename_of(const char *path) {
-    const char *p = strrchr(path, '/');
-    return p ? p + 1 : path;
-}
-
-static void copy_basename(char *dst, size_t size, const char *path) {
-    const char *base = basename_of(path);
-    snprintf(dst, size, "%s", base);
-}
-
 void data_fill_file_info(const char *path, struct file_info *out) {
     memset(out, 0, sizeof(*out));
 
@@ -136,7 +68,9 @@ void data_fill_file_info(const char *path, struct file_info *out) {
     format_date(out->modified, sizeof(out->modified), st.st_mtime);
     format_date(out->accessed, sizeof(out->accessed), st.st_atime);
 
-#if !defined(__ELKS__)
+#if defined(__ELKS__)
+    elks_fill_file_info_fs(path, out);
+#else
     {
         struct statvfs vfs;
         if (statvfs(path, &vfs) == 0) {
@@ -157,8 +91,8 @@ void data_fill_file_info(const char *path, struct file_info *out) {
                 unsigned long long free_bytes = (unsigned long long)vfs.f_bavail * vfs.f_frsize;
                 unsigned long pct = total ? (unsigned long)(100ULL * free_bytes / total) : 0;
                 char total_s[16], free_s[16];
-                human_size(total, total_s, sizeof total_s);
-                human_size(free_bytes, free_s, sizeof free_s);
+                util_human_size(total, total_s, sizeof total_s);
+                util_human_size(free_bytes, free_s, sizeof free_s);
                 snprintf(out->total_space, sizeof(out->total_space), "%s", total_s);
                 snprintf(out->free_space, sizeof(out->free_space), "%s (%lu%%)", free_s, pct);
             }
